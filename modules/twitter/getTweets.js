@@ -2,58 +2,22 @@
 //
 // INPUT: source and bearerToken
 // OUTPUT: tweets data unaltered (should return a promise with the tweets)
+// _____________________________________________________________________________
 
-// REQUIRED MODULES
-const https = require( 'https' );
+// REQUIRED MODULES_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+const request = require( '../request' );
 
-// EXPORTS
-module.exports = tweets;
-
-function getTweets( bearerToken, callback ) {
+// EXPORTS _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+module.exports.getTweets = function ( bearerToken, screenName ) {
     // console.log('getTweets', bearerToken );
-    const reqOptions = {
+    return request( {
         method: 'GET',
         host: 'api.twitter.com',
-        path: '/1.1/statuses/user_timeline.json?screen_name=realDonaldTrump',
-        headers: {
-            'Authorization': 'Bearer ' + bearerToken
-        }
-    };
-    const req = https.request( reqOptions, ( res ) => {
-
-
-        if ( res.statusCode != 200 ) {
-            callback( res.statusCode );
-            return;
-        }
-
-        // console.log( `STATUS: ${res.statusCode}` );
-
-        let body = '';
-
-        res.on( 'data', ( chunck ) => {
-            body += chunck;
-        } );
-
-
-        res.on( 'end', () => {
-            try {
-                body = JSON.parse( body );
-
-                // console.log(body);
-
-                callback( null, body );
-            } catch ( err ) {
-                callback( err );
-            }
-        } );
-
-
+        path: `/1.1/statuses/user_timeline.json?screen_name=${screenName || 'theonion'}`,
+        auth: 'Bearer ' + bearerToken
+    } ).then( function ( data ) {
+        return JSON.parse( data );
+    } ).catch( function ( err ) {
+        console.error( err.stack, 'an error occurred in getTweets() fn..' );
     } );
-
-    req.on( 'error', ( err ) => {
-        callback( err );
-    } );
-
-    req.end();
-}
+};

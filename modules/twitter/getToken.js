@@ -2,65 +2,24 @@
 //
 // INPUT: authSecrets
 // OUTPUT: bearerToken (should return a promise with the bearerToken)
+// _____________________________________________________________________________
 
-// REQUIRED MODULES
-const https = require( 'https' );
-const secrets = require( '../../../secrets.json' );
+// REQUIRED MODULES_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+const request = require( '../request' );
 
-// EXPORTS
-module.exports = token;
-
-// MODULE VARIABLES:
-const authSecrets = 'Basic ' + new Buffer( secrets.consumerKey + ':' + secrets.consumerSecret ).toString( 'base64' );
-
-
-// make the request to twitter through the server.
-// use the node server
-function getToken( callback ) {
-
-    const reqOptions = {
+// EXPORTS _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+module.exports.getToken = function (consumerKey, consumerSecret) {
+    let authorization = `${consumerKey}:${consumerSecret}`;
+    return request( {
         method: 'POST',
         host: 'api.twitter.com',
         path: '/oauth2/token',
-        headers: {
-            'Authorization': authSecrets,
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        }
-    };
-
-    const req = https.request( reqOptions, ( res ) => {
-        // console.log( `STATUS: ${res.statusCode}` );
-        // console.log( `HEADERS: ${JSON.stringify(res.headers)}` );
-
-        if ( res.statusCode != 200 ) {
-            callback( res.statusCode );
-            return;
-        } else {
-
-            let body = '';
-
-            res.on( 'data', ( chunck ) => {
-                body += chunck;
-            } );
-
-            res.on( 'end', () => {
-                try {
-                    body = JSON.parse( body );
-                    callback( null, body );
-                } catch ( err ) {
-                    callback( err );
-                }
-            } );
-        }
+        auth: 'Basic ' + Buffer( authorization ).toString( 'base64' ),
+        contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
+        body: 'grant_type=client_credentials'
+    } ).then( function ( data ) {
+        return JSON.parse( data ).access_token;
+    } ).catch( function ( err ) {
+        console.error( err.stack, 'an error occurred in getToken() fn..' );
     } );
-
-    // check if the req generates an error and handle it in the async way by passing it to the callback.
-    req.on( 'error', ( err ) => {
-        callback( err );
-    } );
-    // write to the body of the post the required string from twitter.
-    req.write( 'grant_type=client_credentials' );
-
-    // close the request
-    req.end();
-}
+};

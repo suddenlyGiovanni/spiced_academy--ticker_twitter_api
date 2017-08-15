@@ -6,19 +6,17 @@
 // REQUIRED MODULES
 
 // EXPORTS
-module.exports = filteredTweets;
-
-function filterData( data ) {
+module.exports.filterTweets = function ( tweets ) {
 
     let filteredTweets = {
         headlines: []
     };
 
-    data = data.filter( function ( tweet ) {
+    tweets = tweets.filter( function ( tweet ) {
         return tweet.entities.urls.length == 1;
     } );
 
-    data.forEach( function ( tweet ) {
+    tweets.forEach( function ( tweet ) {
         // console.log(tweet);
         let headline = {};
 
@@ -30,12 +28,7 @@ function filterData( data ) {
 
         filteredTweets.headlines.push( headline );
     } );
-    // data.forEach(function(item) {
-    //     console.log('______________');
-    //     console.log(item.text);
-    //     console.log(item.created_at);
-    //     console.log(item.entities.urls);
-    // });
+    
     console.log( filteredTweets );
     return filteredTweets;
-}
+};

@@ -32,6 +32,7 @@ app.use( ( err, req, res, next ) => {
 // end point from where ticker should get the data
 app.get( '/headlines.json', ( req, res ) => {
 
+// TODO: convert this endpoint to the new app implementation
     getToken( function ( err, data ) {
         if ( err ) {
             console.error( err.stack );
