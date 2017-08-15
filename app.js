@@ -5,7 +5,6 @@ const bodyParser = require( 'body-parser' );
 const secrets = require( './secrets.json' );
 
 const authSecrets = 'Basic ' + new Buffer( secrets.consumerKey + ':' + secrets.consumerSecret ).toString( 'base64' );
-// console.log( authSecrets );
 
 // EXPRESS
 const app = express();
@@ -37,11 +36,11 @@ app.get( '/headlines.json', ( req, res ) => {
         if ( err ) {
             console.error( err.stack );
         } else {
-            getTweets( data.access_token, function (err, data) {
-                if (err) {
-                    console.error(err.stack);
+            getTweets( data.access_token, function ( err, data ) {
+                if ( err ) {
+                    console.error( err.stack );
                 } else {
-                    res.json(filterData(data));
+                    res.json( filterData( data ) );
                 }
             } );
         }
@@ -97,17 +96,6 @@ function getToken( callback ) {
     // close the request
     req.end();
 }
-
-// getToken( function ( err, data ) {
-//     if ( err ) {
-//         console.error( err.stack );
-//     } else {
-//         getTweets( data.access_token, filterData );
-//     }
-// } );
-
-// now refactor the getToken to use promises
-
 
 function getTweets( bearerToken, callback ) {
     // console.log('getTweets', bearerToken );
@@ -169,25 +157,25 @@ function filterData( data ) {
         return tweet.entities.urls.length == 1;
     } );
 
-    data.forEach(function (tweet) {
+    data.forEach( function ( tweet ) {
         // console.log(tweet);
         let headline = {};
 
-        const text = tweet.text.substring(0, (tweet.text.indexOf('https://') -1));
+        const text = tweet.text.substring( 0, ( tweet.text.indexOf( 'https://' ) - 1 ) );
 
         headline.headline = text;
-        headline.url = tweet.entities.urls[0].url;
+        headline.url = tweet.entities.urls[ 0 ].url;
         headline.time = tweet.created_at;
 
-        filteredTweets.headlines.push(headline);
-    });
+        filteredTweets.headlines.push( headline );
+    } );
     // data.forEach(function(item) {
     //     console.log('______________');
     //     console.log(item.text);
     //     console.log(item.created_at);
     //     console.log(item.entities.urls);
     // });
-    console.log(filteredTweets);
+    console.log( filteredTweets );
     return filteredTweets;
 }
 
